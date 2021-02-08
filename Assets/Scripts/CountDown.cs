@@ -6,6 +6,7 @@ using TMPro;
 
 public class CountDown : MonoBehaviour
 {
+    public bool isGameStart = false;
     private int countOver = 0;
     private float m_Timer;
     private int m_Minute;//分
@@ -29,6 +30,7 @@ public class CountDown : MonoBehaviour
                 countDown.GetComponent<TMP_Text>().text = "GO!";
                 yield return new WaitForSeconds(1f);
                 countDownTime--;
+                this.isGameStart = true;
             }
         }
         countDown.GetComponent<TMP_Text>().text = "";
@@ -46,7 +48,9 @@ public class CountDown : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        if(countOver == 1)
+        GameObject finish = GameObject.Find("FinishLine");
+        bool isFinish = finish.GetComponent<FinishLine>().isGameFinish;
+        if ((countOver == 1) && (!isFinish))
         {
             m_Timer += Time.deltaTime;
             m_Second = (int)m_Timer;

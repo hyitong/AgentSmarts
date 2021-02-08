@@ -591,8 +591,16 @@ public class ArcadeCar : MonoBehaviour
 
     void FixedUpdate()
     {
-        UpdateInput();
 
+        GameObject countDown = GameObject.Find("CountDown");
+        bool isStart = countDown.GetComponent<CountDown>().isGameStart;
+        GameObject finish = GameObject.Find("FinishLine");
+        bool isFinish = finish.GetComponent<FinishLine>().isGameFinish;
+        //print(isFinish);
+        if (!isFinish && isStart)
+        {
+            UpdateInput();
+        }
         accelerationForceMagnitude = CalcAccelerationForceMagnitude();
 
         // 0.8 - pressed
