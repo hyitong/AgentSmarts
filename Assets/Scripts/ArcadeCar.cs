@@ -1,6 +1,7 @@
 ﻿using System;
 using UnityEngine;
 using System.Collections;
+using UnityEngine.UI;
 
 
 
@@ -12,6 +13,14 @@ public class ArcadeCar : MonoBehaviour
     const int WHEEL_RIGHT_INDEX = 1;
 
     const float wheelWidth = 0.085f;
+
+    [Header("Sensors")]
+    public float sensorLength = 25f;
+    public Vector3 frontSensorPosition = new Vector3(0f, 0.2f, 2f);
+    public float frontSideSensorPosition = 0.8f;
+    public float frontSensorAngle = 30f;
+
+    public Text sensorText;
 
 
     public class WheelData
@@ -256,7 +265,7 @@ public class ArcadeCar : MonoBehaviour
 
     void Start()
     {
-
+        sensorText.text = "Sensor Reading: \n    MiddleCenter    " + sensorLength.ToString("0.00") + "\n    MiddleLeft    " + sensorLength.ToString("0.00") + "\n    MiddleRight    " + sensorLength.ToString("0.00") + "\n    AngleLeft    " + sensorLength.ToString("0.00") + "\n    AngleRight    " + sensorLength.ToString("0.00");
 
         style.normal.textColor = Color.red;
 
@@ -591,6 +600,7 @@ public class ArcadeCar : MonoBehaviour
 
     void FixedUpdate()
     {
+        Sensors();
         UpdateInput();
 
         accelerationForceMagnitude = CalcAccelerationForceMagnitude();
@@ -705,6 +715,80 @@ public class ArcadeCar : MonoBehaviour
         {
             handBrakeSlipperyTiresTime = 0.0f;
         }
+
+    }
+
+    private void Sensors()
+    {
+        RaycastHit hit;
+        Vector3 sensorStartingPos = transform.position;
+        sensorStartingPos += transform.forward * frontSensorPosition.z;
+        sensorStartingPos += transform.up * frontSensorPosition.y;
+
+        String midcenter = sensorLength.ToString("0.00");
+        String midleft = sensorLength.ToString("0.00");
+        String midright = sensorLength.ToString("0.00");
+        String angleleft = sensorLength.ToString("0.00");
+        String angleright = sensorLength.ToString("0.00");
+
+        // front center sensor
+        if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
+        {
+            Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
+            midcenter = hit.distance.ToString("0.00");
+        }
+        else
+        {
+            Debug.DrawRay(sensorStartingPos, transform.forward * sensorLength, Color.white);
+        }
+
+        // front right sensor
+        sensorStartingPos += transform.right * frontSideSensorPosition;
+        if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
+        {
+            Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
+            midright = hit.distance.ToString("0.00");
+        }
+        else
+        {
+            Debug.DrawRay(sensorStartingPos, transform.forward * sensorLength, Color.white);
+        }
+
+        // front right angle sensor
+        if (Physics.Raycast(sensorStartingPos, Quaternion.AngleAxis(frontSensorAngle, transform.up) * transform.forward, out hit, sensorLength))
+        {
+            Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
+            angleright = hit.distance.ToString("0.00");
+        }
+        else
+        {
+            Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(frontSensorAngle, transform.up) * transform.forward * sensorLength, Color.white);
+        }
+
+        // front left sensor
+        sensorStartingPos -= transform.right * frontSideSensorPosition * 2;
+        if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
+        {
+            Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
+            midleft = hit.distance.ToString("0.00");
+        }
+        else
+        {
+            Debug.DrawRay(sensorStartingPos, transform.forward * sensorLength, Color.white);
+        }
+
+        // front left angle sensor
+        if (Physics.Raycast(sensorStartingPos, Quaternion.AngleAxis(-frontSensorAngle, transform.up) * transform.forward, out hit, sensorLength))
+        {
+            Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
+            angleleft = hit.distance.ToString("0.00");
+        }
+        else
+        {
+            Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(-frontSensorAngle, transform.up) * transform.forward * sensorLength, Color.white);
+        }
+
+        sensorText.text = "Sensor Reading: \n    MiddleCenter    " + midcenter + "\n    MiddleLeft    " + midleft + "\n    MiddleRight    " + midright + "\n    AngleLeft    " + angleleft + "\n    AngleRight    " + angleright;
 
     }
 
