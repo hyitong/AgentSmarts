@@ -1,9 +1,9 @@
 ﻿using System;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using System.Collections;
 using UnityEngine.UI;
-
-
+using TMPro;
 
 public class ArcadeCar : MonoBehaviour
 {
@@ -243,34 +243,48 @@ public class ArcadeCar : MonoBehaviour
     Ray wheelRay = new Ray();
     RaycastHit[] wheelRayHits = new RaycastHit[16];
 
+    //Speed up time
+    float accelerateTime = 0.0f;
+
 
     void Reset(Vector3 position)
     {
-        position += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0.0f, UnityEngine.Random.Range(-1.0f, 1.0f));
-        float yaw = transform.eulerAngles.y + UnityEngine.Random.Range(-10.0f, 10.0f);
+        SceneManager.LoadScene(SceneManager.GetActiveScene().name);
+        //position += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0.0f, UnityEngine.Random.Range(-1.0f, 1.0f));
+        //float yaw = transform.eulerAngles.y + UnityEngine.Random.Range(-10.0f, 10.0f);
 
-        transform.position = position;
-        transform.rotation = Quaternion.Euler(new Vector3(0.0f, yaw, 0.0f));
+        //transform.position = position;
+        //transform.rotation = Quaternion.Euler(new Vector3(0.0f, yaw, 0.0f));
 
-        rb.velocity = new Vector3(0f, 0f, 0f);
-        rb.angularVelocity = new Vector3(0f, 0f, 0f);
+        //rb.velocity = new Vector3(0f, 0f, 0f);
+        //rb.angularVelocity = new Vector3(0f, 0f, 0f);
 
-        for (int axleIndex = 0; axleIndex < axles.Length; axleIndex++)
-        {
-            axles[axleIndex].steerAngle = 0.0f;
-        }
+        //for (int axleIndex = 0; axleIndex < axles.Length; axleIndex++)
+        //{
+            //axles[axleIndex].steerAngle = 0.0f;
+        //}
 
-        Debug.Log(string.Format("Reset {0}, {1}, {2}, Rot {3}", position.x, position.y, position.z, yaw));
+        //Debug.Log(string.Format("Reset {0}, {1}, {2}, Rot {3}", position.x, position.y, position.z, yaw));
     }
 
     void Start()
     {
-        sensorText.text = "Sensor Reading: \n    MiddleCenter    " + sensorLength.ToString("0.00") + "\n    MiddleLeft    " + sensorLength.ToString("0.00") + "\n    MiddleRight    " + sensorLength.ToString("0.00") + "\n    AngleLeft    " + sensorLength.ToString("0.00") + "\n    AngleRight    " + sensorLength.ToString("0.00");
+        //sensorText.text = "Sensor Reading: \n    MiddleCenter    " + sensorLength.ToString("0.00") + "\n    MiddleLeft    " + sensorLength.ToString("0.00") + "\n    MiddleRight    " + sensorLength.ToString("0.00") + "\n    AngleLeft    " + sensorLength.ToString("0.00") + "\n    AngleRight    " + sensorLength.ToString("0.00");
 
-        style.normal.textColor = Color.red;
+        style.normal.textColor = Color.clear;
+        accelerationCurve = AnimationCurve.EaseInOut(0, 0, 5, 176.88f);
 
         rb = GetComponent<Rigidbody>();
         rb.centerOfMass = centerOfMass;
+    }
+
+    private void OnTriggerEnter(Collider other)
+    {
+        if(other.gameObject.tag.CompareTo("Accelerate") == 0)
+        {
+            accelerationCurve = AnimationCurve.Linear(0, 0, 5, 255);
+            accelerateTime = 5.0f;
+        }
     }
 
     void OnValidate()
@@ -596,6 +610,8 @@ public class ArcadeCar : MonoBehaviour
     void Update()
     {
         ApplyVisual();
+        Accelerate();
+        UpdateSpeed();
     }
 
     void FixedUpdate()
@@ -788,7 +804,7 @@ public class ArcadeCar : MonoBehaviour
             Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(-frontSensorAngle, transform.up) * transform.forward * sensorLength, Color.white);
         }
 
-        sensorText.text = "Sensor Reading: \n    MiddleCenter    " + midcenter + "\n    MiddleLeft    " + midleft + "\n    MiddleRight    " + midright + "\n    AngleLeft    " + angleleft + "\n    AngleRight    " + angleright;
+        //sensorText.text = "Sensor Reading: \n    MiddleCenter    " + midcenter + "\n    MiddleLeft    " + midleft + "\n    MiddleRight    " + midright + "\n    AngleLeft    " + angleleft + "\n    AngleRight    " + angleright;
 
     }
 
@@ -1366,7 +1382,25 @@ public class ArcadeCar : MonoBehaviour
 
     }
 
+    void Accelerate()
+    {
+        if (accelerateTime >= 0)
+        {
+            accelerateTime -= Time.deltaTime;
+            if (accelerateTime < 0.1f)
+            {
+                accelerationCurve = AnimationCurve.EaseInOut(0, 0, 5, 176.88f);
+            }
+        }
+    }
 
+    void UpdateSpeed()
+    {
+        float speed = GetSpeed();
+        float speedKmH = speed * 3.6f;
+        GameObject speedText = GameObject.Find("Speed");
+        speedText.GetComponent<TMP_Text>().text = "Speed: " + string.Format("{0:F2} km/h", speedKmH);
+    }
 
 }
 
