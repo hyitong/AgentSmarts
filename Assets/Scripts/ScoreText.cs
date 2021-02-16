@@ -2,19 +2,20 @@
 using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.UI;
+using TMPro;
 
 public class ScoreText : MonoBehaviour
 {
-    Text text;
     public static int coinAmount;
     void Start()
     {
-        text = GetComponent<Text>();
+        coinAmount = 0;
     }
 
     // Update is called once per frame
     void Update()
     {
-        text.text = coinAmount.ToString();
+        GameObject scoreText = GameObject.Find("Score");
+        scoreText.GetComponent<TMP_Text>().text = "score: " + coinAmount.ToString();
     }
 }
