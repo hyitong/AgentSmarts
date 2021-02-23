@@ -1,0 +1,48 @@
+{
+    "CarAgent": {
+        "checkpoints": [
+            {
+                "steps": 499999,
+                "file_path": "results\\test15\\CarAgent\\CarAgent-499999.onnx",
+                "reward": 24.951853982276386,
+                "creation_time": 1613990897.5402007
+            },
+            {
+                "steps": 500063,
+                "file_path": "results\\test15\\CarAgent\\CarAgent-500063.onnx",
+                "reward": 24.951853982276386,
+                "creation_time": 1613990897.709199
+            },
+            {
+                "steps": 999994,
+                "file_path": "results\\slowspeed_continue\\CarAgent\\CarAgent-999994.onnx",
+                "reward": 37.73158256395867,
+                "creation_time": 1613999735.7938437
+            },
+            {
+                "steps": 1499951,
+                "file_path": "results\\slowspeed_continue\\CarAgent\\CarAgent-1499951.onnx",
+                "reward": 61.928577354976106,
+                "creation_time": 1614005128.4855072
+            },
+            {
+                "steps": 1500015,
+                "file_path": "results\\slowspeed_continue\\CarAgent\\CarAgent-1500015.onnx",
+                "reward": 61.928577354976106,
+                "creation_time": 1614005128.6345067
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 1500015,
+            "file_path": "results\\slowspeed_continue\\CarAgent.onnx",
+            "reward": 61.928577354976106,
+            "creation_time": 1614005128.6345067
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.2.0",
+        "mlagents_version": "0.23.0",
+        "torch_version": "1.7.1",
+        "tensorflow_version": -1
+    }
+}

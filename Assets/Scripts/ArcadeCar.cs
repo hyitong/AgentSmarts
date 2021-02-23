@@ -1,26 +1,38 @@
 ﻿using System;
 using UnityEngine;
 using UnityEngine.SceneManagement;
+using Unity.MLAgents;
+using Unity.MLAgents.Sensors;
 using System.Collections;
 using UnityEngine.UI;
 using TMPro;
 
-public class ArcadeCar : MonoBehaviour
+public class ArcadeCar : Agent
 {
-
-
     const int WHEEL_LEFT_INDEX = 0;
     const int WHEEL_RIGHT_INDEX = 1;
 
     const float wheelWidth = 0.085f;
 
     [Header("Sensors")]
-    public float sensorLength = 25f;
+    public float sensorLength = 35f;
     public Vector3 frontSensorPosition = new Vector3(0f, 0.2f, 2f);
     public float frontSideSensorPosition = 0.8f;
+    public float frontSensorInnerAngle = 12f;
     public float frontSensorAngle = 30f;
+    public float sensorMidCenter;
+    public float sensorMidLeft;
+    public float sensorMidRight;
+    public float sensorAngleLeft;
+    public float sensorAngleRight;
 
     public Text sensorText;
+
+    private int previousCheckNum = 0;
+
+    private int episodeCount = 0;
+    private float innerCheckpointTimer = 0.0f;
+    private float checkPointInterval = 60.0f;
 
 
     public class WheelData
@@ -250,21 +262,21 @@ public class ArcadeCar : MonoBehaviour
     void Reset(Vector3 position)
     {
         SceneManager.LoadScene(SceneManager.GetActiveScene().name);
-        //position += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0.0f, UnityEngine.Random.Range(-1.0f, 1.0f));
-        //float yaw = transform.eulerAngles.y + UnityEngine.Random.Range(-10.0f, 10.0f);
+        position += new Vector3(UnityEngine.Random.Range(-1.0f, 1.0f), 0.0f, UnityEngine.Random.Range(-1.0f, 1.0f));
+        float yaw = transform.eulerAngles.y + UnityEngine.Random.Range(-10.0f, 10.0f);
 
-        //transform.position = position;
-        //transform.rotation = Quaternion.Euler(new Vector3(0.0f, yaw, 0.0f));
+        transform.position = position;
+        transform.rotation = Quaternion.Euler(new Vector3(0.0f, yaw, 0.0f));
 
-        //rb.velocity = new Vector3(0f, 0f, 0f);
-        //rb.angularVelocity = new Vector3(0f, 0f, 0f);
+        rb.velocity = new Vector3(0f, 0f, 0f);
+        rb.angularVelocity = new Vector3(0f, 0f, 0f);
 
-        //for (int axleIndex = 0; axleIndex < axles.Length; axleIndex++)
-        //{
-            //axles[axleIndex].steerAngle = 0.0f;
-        //}
+        for (int axleIndex = 0; axleIndex < axles.Length; axleIndex++)
+        {
+            axles[axleIndex].steerAngle = 0.0f;
+        }
 
-        //Debug.Log(string.Format("Reset {0}, {1}, {2}, Rot {3}", position.x, position.y, position.z, yaw));
+        Debug.Log(string.Format("Reset {0}, {1}, {2}, Rot {3}", position.x, position.y, position.z, yaw));
     }
 
     void Start()
@@ -449,11 +461,19 @@ public class ArcadeCar : MonoBehaviour
         return limitDegrees;
     }
 
-    void UpdateInput()
+    public override void Heuristic(float[] actionsOut)
     {
-        float v = Input.GetAxis("Vertical");
-        float h = Input.GetAxis("Horizontal");
+        actionsOut[0] = Input.GetAxis("Vertical");
+        actionsOut[1] = Input.GetAxis("Horizontal");
+    }
+
+    void UpdateInput(float[] vectorAction)
+    {
+        //float v = Input.GetAxis("Vertical");
+        //float h = Input.GetAxis("Horizontal");
         //Debug.Log (string.Format ("H = {0}", h));
+        float v = vectorAction[0];
+        float h = vectorAction[1];
 
         if (!controllable)
         {
@@ -608,16 +628,60 @@ public class ArcadeCar : MonoBehaviour
     }
 
     void Update()
-    {
+    {     
         ApplyVisual();
         Accelerate();
+        Sensors();
         UpdateSpeed();
     }
 
-    void FixedUpdate()
+    public override void OnEpisodeBegin()
     {
-        Sensors();
-        UpdateInput();
+        //Reset(new Vector3(-165.6774f, 3.200014f, 157.3083f));
+        this.previousCheckNum = 0;
+        CheckPoint.checkNum = 0;
+
+        CheckPoint[] checkpoints = GameObject.FindObjectsOfType<CheckPoint>();
+        for (int i = 0; i < checkpoints.Length; i++)
+        {
+            checkpoints[i].isChecked = false;
+        }
+
+        GameObject parentObj = GameObject.Find("Canvas");
+        GameObject checkPoint = parentObj.transform.Find("Checked").gameObject;
+        checkPoint.GetComponent<TMP_Text>().text = "Checkpoints: " + CheckPoint.checkNum.ToString();
+
+        CountDown.m_Timer = 0.0f;
+        this.innerCheckpointTimer = 0.0f;
+
+        print("Episode End " + this.episodeCount.ToString());
+        this.episodeCount += 1;
+        transform.position = new Vector3(-171.9f, 3.200014f, 157.3083f);
+        //transform.position = position;
+        transform.rotation = Quaternion.Euler(new Vector3(0.0f, 0.0f, 0.0f));
+
+        rb.velocity = new Vector3(0f, 0f, 0f);
+        rb.angularVelocity = new Vector3(0f, 0f, 0f);
+
+        for (int axleIndex = 0; axleIndex < axles.Length; axleIndex++)
+        {
+            axles[axleIndex].steerAngle = 0.0f;
+        }
+    }
+
+    public override void CollectObservations(VectorSensor sensor)
+    {
+        sensor.AddObservation(this.sensorMidCenter / this.sensorLength);
+        sensor.AddObservation(this.sensorMidLeft / this.sensorLength);
+        sensor.AddObservation(this.sensorMidRight / this.sensorLength);
+        sensor.AddObservation(this.sensorAngleLeft / this.sensorLength);
+        sensor.AddObservation(this.sensorAngleRight / this.sensorLength);
+    }
+
+    public override void OnActionReceived(float[] vectorAction)
+    {
+        UpdateInput(vectorAction);
+        // print(GetSpeed().ToString());
 
         accelerationForceMagnitude = CalcAccelerationForceMagnitude();
 
@@ -732,6 +796,49 @@ public class ArcadeCar : MonoBehaviour
             handBrakeSlipperyTiresTime = 0.0f;
         }
 
+        // float sensorReward = (this.sensorMidCenter + this.sensorMidLeft + this.sensorMidRight + this.sensorAngleLeft + this.sensorAngleRight) / (5 * this.sensorLength);
+
+        this.innerCheckpointTimer += Time.deltaTime;
+        // SetReward(sensorReward);
+
+        if (GetSpeed() > 0)
+        {
+            SetReward(GetSpeed()*0.5f / 170.0f + 0.1f);
+            //SetReward(0.1f);
+        }
+        else
+        {
+            SetReward(0.0f);
+        }
+
+
+        if (CheckPoint.checkNum > previousCheckNum)
+        {
+            AddReward(1f);
+            this.previousCheckNum = CheckPoint.checkNum;
+            //this.innerCheckpointTimer = 0.0f;
+        }
+        if (this.innerCheckpointTimer > 60.0f)
+        {
+            EndEpisode();
+        }
+        //if (this.innerCheckpointTimer > this.checkPointInterval)
+        //{
+        //    AddReward(-1.0f);
+        //    EndEpisode();
+        //}
+        //if (CheckPoint.checkNum == 5)
+        //{
+        //    AddReward(1.0f);
+        //    EndEpisode();
+        //}
+
+        if (this.sensorMidCenter < 1 || this.sensorMidLeft < 1 || this.sensorMidRight < 1 || this.sensorAngleLeft < 1 || this.sensorAngleRight < 1)
+        {
+            //AddReward(-10.0f);
+            EndEpisode();
+        }
+
     }
 
     private void Sensors()
@@ -747,11 +854,18 @@ public class ArcadeCar : MonoBehaviour
         String angleleft = sensorLength.ToString("0.00");
         String angleright = sensorLength.ToString("0.00");
 
+        this.sensorMidCenter = this.sensorLength;
+        this.sensorMidLeft = this.sensorLength;
+        this.sensorMidRight = this.sensorLength;
+        this.sensorAngleLeft = this.sensorLength;
+        this.sensorAngleRight = this.sensorLength;
+
         // front center sensor
         if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
         {
             Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
             midcenter = hit.distance.ToString("0.00");
+            this.sensorMidCenter = hit.distance;
         }
         else
         {
@@ -760,14 +874,15 @@ public class ArcadeCar : MonoBehaviour
 
         // front right sensor
         sensorStartingPos += transform.right * frontSideSensorPosition;
-        if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
+        if (Physics.Raycast(sensorStartingPos, Quaternion.AngleAxis(frontSensorInnerAngle, transform.up) * transform.forward, out hit, sensorLength))
         {
             Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
             midright = hit.distance.ToString("0.00");
+            this.sensorMidRight = hit.distance;
         }
         else
         {
-            Debug.DrawRay(sensorStartingPos, transform.forward * sensorLength, Color.white);
+            Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(frontSensorInnerAngle, transform.up) * transform.forward * sensorLength, Color.white);
         }
 
         // front right angle sensor
@@ -775,6 +890,7 @@ public class ArcadeCar : MonoBehaviour
         {
             Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
             angleright = hit.distance.ToString("0.00");
+            this.sensorAngleRight = hit.distance;
         }
         else
         {
@@ -783,14 +899,15 @@ public class ArcadeCar : MonoBehaviour
 
         // front left sensor
         sensorStartingPos -= transform.right * frontSideSensorPosition * 2;
-        if (Physics.Raycast(sensorStartingPos, transform.forward, out hit, sensorLength))
+        if (Physics.Raycast(sensorStartingPos, Quaternion.AngleAxis(-frontSensorInnerAngle, transform.up) * transform.forward, out hit, sensorLength))
         {
             Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
             midleft = hit.distance.ToString("0.00");
+            this.sensorMidLeft = hit.distance;
         }
         else
         {
-            Debug.DrawRay(sensorStartingPos, transform.forward * sensorLength, Color.white);
+            Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(-frontSensorInnerAngle, transform.up) * transform.forward * sensorLength, Color.white);
         }
 
         // front left angle sensor
@@ -798,13 +915,14 @@ public class ArcadeCar : MonoBehaviour
         {
             Debug.DrawLine(sensorStartingPos, hit.point, Color.red);
             angleleft = hit.distance.ToString("0.00");
+            this.sensorAngleLeft = hit.distance;
         }
         else
         {
             Debug.DrawRay(sensorStartingPos, Quaternion.AngleAxis(-frontSensorAngle, transform.up) * transform.forward * sensorLength, Color.white);
         }
 
-        //sensorText.text = "Sensor Reading: \n    MiddleCenter    " + midcenter + "\n    MiddleLeft    " + midleft + "\n    MiddleRight    " + midright + "\n    AngleLeft    " + angleleft + "\n    AngleRight    " + angleright;
+        sensorText.text = "Sensor Reading: \n    MiddleCenter    " + midcenter + "\n    MiddleLeft    " + midleft + "\n    MiddleRight    " + midright + "\n    AngleLeft    " + angleleft + "\n    AngleRight    " + angleright;
 
     }
 

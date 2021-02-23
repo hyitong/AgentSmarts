@@ -8,7 +8,7 @@ public class CountDown : MonoBehaviour
 {
     public static bool isGameStart = false;
     private int countOver = 0;
-    private float m_Timer;
+    public static float m_Timer;
     private int m_Minute;//分
     private int m_Second;//秒
     public TMP_Text countDownDisplay;

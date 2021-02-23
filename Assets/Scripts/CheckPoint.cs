@@ -17,11 +17,11 @@ public class CheckPoint : MonoBehaviour
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Car")
+        if (other.tag == "Car" && this.isChecked == false)
         {
             this.isChecked = true;
             checkNum++;
-            print("Finish!");
+            //print("Finish!");
             GameObject parentObj = GameObject.Find("Canvas");
             GameObject checkPoint = parentObj.transform.Find("Checked").gameObject;
             checkPoint.GetComponent<TMP_Text>().text = "Checkpoints: " + checkNum.ToString();
