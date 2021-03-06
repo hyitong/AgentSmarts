@@ -48,8 +48,7 @@ public class CountDown : MonoBehaviour
     // Update is called once per frame
     void Update()
     {
-        GameObject finish = GameObject.Find("FinishLine");
-        bool isFinish = finish.GetComponent<FinishLine>().isGameFinish;
+        bool isFinish = FinishLine.isGameFinish;
         if ((countOver == 1) && (!isFinish) && (isGameStart))
         {
             m_Timer += Time.deltaTime;

@@ -6,7 +6,7 @@ using System;
 public class FinishLine : MonoBehaviour
 {
     [Tooltip("isFinish")]
-    public bool isGameFinish = false;
+    public static bool isGameFinish = false;
 
     void OnTriggerEnter(Collider other)
     {
@@ -16,7 +16,7 @@ public class FinishLine : MonoBehaviour
             GameObject parentObj = GameObject.Find("Canvas");
             GameObject finishMsg = parentObj.transform.Find("Finish").gameObject;
             finishMsg.SetActive(true);
-            this.isGameFinish = true;
+            isGameFinish = true;
         }
     }
 }

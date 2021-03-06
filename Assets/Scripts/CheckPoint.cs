@@ -15,6 +15,11 @@ public class CheckPoint : MonoBehaviour
         checkNum = 0;
     }
 
+    public bool hasChecked()
+    {
+        return this.isChecked;
+    }
+
     void OnTriggerEnter(Collider other)
     {
         if (other.tag == "Car" && this.isChecked == false)

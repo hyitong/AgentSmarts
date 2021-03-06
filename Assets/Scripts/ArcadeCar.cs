@@ -641,14 +641,18 @@ public class ArcadeCar : Agent
         this.previousCheckNum = 0;
         CheckPoint.checkNum = 0;
 
+        FinishLine.isGameFinish = false;
+        GameObject canvas_obj = GameObject.Find("Canvas");
+        GameObject finishMsg = canvas_obj.transform.Find("Finish").gameObject;
+        finishMsg.SetActive(false);
+
         CheckPoint[] checkpoints = GameObject.FindObjectsOfType<CheckPoint>();
         for (int i = 0; i < checkpoints.Length; i++)
         {
             checkpoints[i].isChecked = false;
         }
 
-        GameObject parentObj = GameObject.Find("Canvas");
-        GameObject checkPoint = parentObj.transform.Find("Checked").gameObject;
+        GameObject checkPoint = canvas_obj.transform.Find("Checked").gameObject;
         checkPoint.GetComponent<TMP_Text>().text = "Checkpoints: " + CheckPoint.checkNum.ToString();
 
         CountDown.m_Timer = 0.0f;
@@ -818,7 +822,21 @@ public class ArcadeCar : Agent
             this.previousCheckNum = CheckPoint.checkNum;
             //this.innerCheckpointTimer = 0.0f;
         }
-        if (this.innerCheckpointTimer > 60.0f)
+
+        GameObject last_checkpoint = GameObject.Find("check53");
+        if (FinishLine.isGameFinish == true)
+        {
+            if (last_checkpoint.GetComponent<CheckPoint>().hasChecked())
+            {
+                AddReward(10f);
+            }
+            else
+            {
+                SetReward(-10f);
+            }
+            EndEpisode();
+        }
+        if (this.innerCheckpointTimer > 300.0f)
         {
             EndEpisode();
         }
