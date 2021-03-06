@@ -33,6 +33,7 @@ public class ArcadeCar : Agent
     private int episodeCount = 0;
     private float innerCheckpointTimer = 0.0f;
     private float checkPointInterval = 60.0f;
+    private bool collideWall = false;
 
 
     public class WheelData
@@ -292,7 +293,13 @@ public class ArcadeCar : Agent
 
     private void OnTriggerEnter(Collider other)
     {
-        if(other.gameObject.tag.CompareTo("Accelerate") == 0)
+        if (other.tag == "Wall")
+        {
+            print("Here");
+            this.collideWall = true;
+        }
+
+        if (other.gameObject.tag.CompareTo("Accelerate") == 0)
         {
             accelerationCurve = AnimationCurve.Linear(0, 0, 5, 255);
             accelerateTime = 5.0f;
@@ -635,6 +642,8 @@ public class ArcadeCar : Agent
         UpdateSpeed();
     }
 
+ 
+
     public override void OnEpisodeBegin()
     {
         //Reset(new Vector3(-165.6774f, 3.200014f, 157.3083f));
@@ -645,6 +654,8 @@ public class ArcadeCar : Agent
         GameObject canvas_obj = GameObject.Find("Canvas");
         GameObject finishMsg = canvas_obj.transform.Find("Finish").gameObject;
         finishMsg.SetActive(false);
+
+        this.collideWall = false;
 
         CheckPoint[] checkpoints = GameObject.FindObjectsOfType<CheckPoint>();
         for (int i = 0; i < checkpoints.Length; i++)
@@ -805,15 +816,15 @@ public class ArcadeCar : Agent
         this.innerCheckpointTimer += Time.deltaTime;
         // SetReward(sensorReward);
 
-        if (GetSpeed() > 0)
-        {
-            SetReward(GetSpeed()*0.5f / 170.0f + 0.1f);
-            //SetReward(0.1f);
-        }
-        else
-        {
-            SetReward(0.0f);
-        }
+        //if (GetSpeed() > 0)
+        //{
+        //    SetReward(GetSpeed()*0.5f / 170.0f + 0.1f);
+        //    //SetReward(0.1f);
+        //}
+        //else
+        //{
+        //    SetReward(0.0f);
+        //}
 
 
         if (CheckPoint.checkNum > previousCheckNum)
@@ -822,6 +833,8 @@ public class ArcadeCar : Agent
             this.previousCheckNum = CheckPoint.checkNum;
             //this.innerCheckpointTimer = 0.0f;
         }
+
+        print(GetCumulativeReward());
 
         GameObject last_checkpoint = GameObject.Find("check53");
         if (FinishLine.isGameFinish == true)
@@ -851,7 +864,12 @@ public class ArcadeCar : Agent
         //    EndEpisode();
         //}
 
-        if (this.sensorMidCenter < 1 || this.sensorMidLeft < 1 || this.sensorMidRight < 1 || this.sensorAngleLeft < 1 || this.sensorAngleRight < 1)
+        //if (this.sensorMidCenter < 1 || this.sensorMidLeft < 1 || this.sensorMidRight < 1 || this.sensorAngleLeft < 1 || this.sensorAngleRight < 1 || this.collideWall)
+        //{
+        //    collide = true;
+        //}
+
+        if (this.collideWall)
         {
             //AddReward(-10.0f);
             EndEpisode();
