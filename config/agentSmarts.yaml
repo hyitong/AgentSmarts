@@ -17,8 +17,11 @@ behaviors:
       vis_encode_type: simple
     reward_signals:
       extrinsic:
-        gamma: 0.99
-        strength: 1.0
+        gamma: 0.95
+        strength: 1
+      gail:
+        strength: 0.05
+        demo_path: Demonstrations/fullrun.demo
     keep_checkpoints: 5
     max_steps: 2000000
     time_horizon: 64
