@@ -33,6 +33,7 @@ public class ArcadeCar : Agent
     private int episodeCount = 0;
     private float innerCheckpointTimer = 0.0f;
     private float checkPointInterval = 60.0f;
+    private float preCheckPointTimeStamp = 0.0f;
 
 
     public class WheelData
@@ -297,6 +298,27 @@ public class ArcadeCar : Agent
             accelerationCurve = AnimationCurve.Linear(0, 0, 5, 255);
             accelerateTime = 5.0f;
         }
+
+        if(other.gameObject.tag.CompareTo("CheckPoints") == 0)
+        {
+            if(other.gameObject.TryGetComponent<CheckPoint>(out CheckPoint checkpoint))
+            {
+                if (checkpoint.isChecked)
+                {
+                    AddReward(-4.0f);
+                    Debug.Log("wrong check points!");
+                }
+                else
+                {
+                    checkpoint.isChecked = true;
+                    float timeInterval = this.innerCheckpointTimer - this.preCheckPointTimeStamp;
+                    this.preCheckPointTimeStamp = this.innerCheckpointTimer;
+                    AddReward(4.0f);
+                    AddReward(1.0f / timeInterval);
+                    Debug.Log("reached correct check points!");
+                }
+            }
+        }
     }
 
     void OnValidate()
@@ -480,6 +502,8 @@ public class ArcadeCar : Agent
             v = 0.0f;
             h = 0.0f;
         }
+
+        v = (float) (0.5 + v * 0.5);
 
         if (Input.GetKey(KeyCode.R) && controllable)
         {
@@ -803,12 +827,12 @@ public class ArcadeCar : Agent
 
         if (GetSpeed() > 0)
         {
-            SetReward(GetSpeed()*0.5f / 170.0f + 0.1f);
+            AddReward(GetSpeed()*3.6f / 170.0f + 0.1f);
             //SetReward(0.1f);
         }
         else
         {
-            SetReward(0.0f);
+            //SetReward(0.0f);
         }
 
 
@@ -818,7 +842,7 @@ public class ArcadeCar : Agent
             this.previousCheckNum = CheckPoint.checkNum;
             //this.innerCheckpointTimer = 0.0f;
         }
-        if (this.innerCheckpointTimer > 60.0f)
+        if (this.innerCheckpointTimer > 180.0f)
         {
             EndEpisode();
         }
