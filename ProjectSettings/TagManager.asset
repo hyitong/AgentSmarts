@@ -5,6 +5,10 @@ TagManager:
   serializedVersion: 2
   tags:
   - Car
+  - Accelerate
+  - CheckPoints
+  - Wall
+  - Checkpoint
   layers:
   - Default
   - TransparentFX
@@ -15,9 +19,9 @@ TagManager:
   - 
   - 
   - PostProcessing
-  - 
-  - 
-  - 
+  - Walls
+  - Checkpoints
+  - Car
   - 
   - 
   - 

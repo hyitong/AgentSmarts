@@ -5,27 +5,18 @@ using TMPro;
 
 public class CheckPoint : MonoBehaviour
 {
-    [Tooltip("isChecked")]
-    public bool isChecked = false;
-    public static int checkNum;
+    private TrackCheckpoints trackCheckpoints;
 
-    void Start()
+    public void SetTrackCheckpoints(TrackCheckpoints trackCheckpoints) 
     {
-        //countDownTime = 3;
-        checkNum = 0;
+        this.trackCheckpoints = trackCheckpoints;
     }
 
     void OnTriggerEnter(Collider other)
     {
-        if (other.tag == "Car" && this.isChecked == false)
+        if (other.tag == "Car")
         {
-            this.isChecked = true;
-            checkNum++;
-            //print("Finish!");
-            GameObject parentObj = GameObject.Find("Canvas");
-            GameObject checkPoint = parentObj.transform.Find("Checked").gameObject;
-            checkPoint.GetComponent<TMP_Text>().text = "Checkpoints: " + checkNum.ToString();
-            
+            trackCheckpoints.CarThroughCheckpoint(this, other.transform);
         }
     }
 }

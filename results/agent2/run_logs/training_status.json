@@ -1,0 +1,24 @@
+{
+    "CarAgent": {
+        "checkpoints": [
+            {
+                "steps": 476351,
+                "file_path": "results\\agent2\\CarAgent\\CarAgent-476351.onnx",
+                "reward": 280.80216884613037,
+                "creation_time": 1614722104.0784357
+            }
+        ],
+        "final_checkpoint": {
+            "steps": 476351,
+            "file_path": "results\\agent2\\CarAgent.onnx",
+            "reward": 280.80216884613037,
+            "creation_time": 1614722104.0784357
+        }
+    },
+    "metadata": {
+        "stats_format_version": "0.2.0",
+        "mlagents_version": "0.23.0",
+        "torch_version": "1.7.0+cu110",
+        "tensorflow_version": -1
+    }
+}

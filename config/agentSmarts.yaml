@@ -2,7 +2,7 @@ behaviors:
   CarAgent:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 1024
+      batch_size: 256
       buffer_size: 10240
       learning_rate: 0.0003
       beta: 0.0005
@@ -20,7 +20,7 @@ behaviors:
         gamma: 0.99
         strength: 1.0
     keep_checkpoints: 5
-    max_steps: 2000000
+    max_steps: 5000000
     time_horizon: 64
-    summary_freq: 2500
+    summary_freq: 100000
     threaded: true
