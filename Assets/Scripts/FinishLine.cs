@@ -17,6 +17,9 @@ public class FinishLine : MonoBehaviour
             GameObject finishMsg = parentObj.transform.Find("Finish").gameObject;
             finishMsg.SetActive(true);
             this.isGameFinish = true;
+            CarAgent carAgent = other.transform.GetComponent<CarAgent>();
+            carAgent.AddReward(10f);
+            carAgent.EndEpisode();
         }
     }
 }

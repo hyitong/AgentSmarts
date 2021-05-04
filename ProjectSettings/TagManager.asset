@@ -9,6 +9,7 @@ TagManager:
   - CheckPoints
   - Wall
   - Checkpoint
+  - ScoreItem
   layers:
   - Default
   - TransparentFX
@@ -22,8 +23,8 @@ TagManager:
   - Walls
   - Checkpoints
   - Car
-  - 
-  - 
+  - ScoreItems
+  - AccelerateItems
   - 
   - 
   - 

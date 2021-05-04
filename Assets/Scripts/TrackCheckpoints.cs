@@ -32,7 +32,7 @@ public class TrackCheckpoints : MonoBehaviour
         int nextCheckpointIndex = nextCheckpointIndexList[carTransformList.IndexOf(carTransform)];
         if (checkpointList.IndexOf(checkpoint) == nextCheckpointIndex) //correct check point
         {
-            Debug.Log("correct");
+            //Debug.Log("correct");
             carAgent.AddReward(1f);
             nextCheckpointIndex = (nextCheckpointIndex + 1) % checkpointList.Count;
             nextCheckpointIndexList[carTransformList.IndexOf(carTransform)] = nextCheckpointIndex;
@@ -41,6 +41,7 @@ public class TrackCheckpoints : MonoBehaviour
         }
         else //wrong check point
         {
+            //Debug.Log("wrong");
             carAgent.AddReward(-1f);
             carAgent.EndEpisode();
         }

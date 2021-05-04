@@ -236,7 +236,7 @@ public class ArcadeCar : MonoBehaviour
 
     public void Reset(Vector3 position)
     {
-        position += new Vector3(UnityEngine.Random.Range(-5.0f, 5.0f), 0.0f, UnityEngine.Random.Range(-1.0f, 1.0f));
+        position += new Vector3(UnityEngine.Random.Range(-10.0f, 10.0f), 0.0f, UnityEngine.Random.Range(-5.0f, 5.0f));
         //float yaw = transform.eulerAngles.y + UnityEngine.Random.Range(-10.0f, 10.0f);
 
         transform.position = position;
@@ -1289,6 +1289,7 @@ public class ArcadeCar : MonoBehaviour
     {
         if (other.gameObject.tag.CompareTo("Accelerate") == 0)
         {
+            Debug.Log("accelerate");
             accelerationCurve = AnimationCurve.Linear(0, 0, 5, 255);
             accelerateTime = 5.0f;
         }

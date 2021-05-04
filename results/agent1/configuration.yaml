@@ -3,7 +3,7 @@ behaviors:
   CarAgent:
     trainer_type: ppo
     hyperparameters:
-      batch_size: 1024
+      batch_size: 256
       buffer_size: 10240
       learning_rate: 0.0003
       beta: 0.0005
@@ -24,9 +24,9 @@ behaviors:
     init_path: null
     keep_checkpoints: 5
     checkpoint_interval: 500000
-    max_steps: 2000000
+    max_steps: 5000000
     time_horizon: 64
-    summary_freq: 2500
+    summary_freq: 100000
     threaded: true
     self_play: null
     behavioral_cloning: null
@@ -50,7 +50,7 @@ checkpoint_settings:
   run_id: agent1
   initialize_from: null
   load_model: false
-  resume: false
+  resume: true
   force: false
   train_model: false
   inference: false

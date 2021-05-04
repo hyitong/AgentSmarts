@@ -1,0 +1,32 @@
+behaviors:
+  CarAgent:
+    trainer_type: ppo
+    hyperparameters:
+      batch_size: 256
+      buffer_size: 10240
+      learning_rate: 0.0003
+      beta: 0.0005
+      epsilon: 0.2
+      lambd: 0.95
+      num_epoch: 3
+      learning_rate_schedule: linear
+    network_settings:
+      normalize: false
+      hidden_units: 256
+      num_layers: 2
+      vis_encode_type: simple
+    reward_signals:
+      extrinsic:
+        gamma: 0.99
+        strength: 1.0
+      gail:
+        strength: 0.5
+        demo_path: Demos/CarAgentDemo.demo
+    behavioral_cloning:
+      strength: 0.5
+      demo_path: Demos/CarAgentDemo.demo
+    keep_checkpoints: 5
+    max_steps: 1500000
+    time_horizon: 64
+    summary_freq: 100000
+    threaded: true
